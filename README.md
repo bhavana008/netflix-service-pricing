@@ -1,1 +1,1 @@
-# netflix-service-pricing
+# netflix-pricing
