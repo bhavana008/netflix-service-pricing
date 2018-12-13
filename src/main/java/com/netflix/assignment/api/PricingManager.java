@@ -48,7 +48,7 @@ public class PricingManager {
     public Response modifyPricing(Price price) {
         try {
             pricingManagementService.modifyPrice(price);
-        } catch (DataException e) {
+        } catch (DataException | PriceNotFoundException e) {
             return Response.serverError().build();
         }
         return Response.ok().build();

@@ -31,4 +31,7 @@ public class Price {
 
     @NotNull
     private String currency;
+
+    @NotNull
+    private Integer version;
 }

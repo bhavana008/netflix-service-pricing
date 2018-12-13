@@ -46,11 +46,13 @@ public class CustomerManagementService {
     }
 
     @Transactional
-    public void modifyCustomerPlanByID(int id, ServicePlan plan) throws DataException {
+    public void modifyCustomerPlanByID(int id, ServicePlan plan) throws DataException, PriceNotFoundException {
         log.debug("Modifying customer with Id : {}", id);
         try {
             Customer customer = customerDao.findById(id);
+            Price price = priceDao.getByCountryPlanLatest(customer.getCountry(), plan);
             customer.setPlan(plan);
+            customer.setVersion(price.getVersion());
             customerDao.update(customer);
         } catch (HibernateException e) {
             throw new DataException("Error updating price event : " + id, e);
@@ -94,7 +96,7 @@ public class CustomerManagementService {
         Customer customer = customerDao.findById(id);
 
         try {
-            Price price = priceDao.getByCountryPlan(customer.getCountry(), customer.getPlan());
+            Price price = priceDao.getByCountryPlanVersion(customer.getCountry(), customer.getPlan(), customer.getVersion());
             return price.getPrice() + Constants.SPACE + price.getCurrency();
         } catch (PriceNotFoundException e) {
             return PriceDao.PRICE_NOT_FOUND;

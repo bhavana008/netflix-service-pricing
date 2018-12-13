@@ -28,4 +28,7 @@ public class Customer {
     @Column(name = "plan")
     @Enumerated(EnumType.STRING)
     private ServicePlan plan;
+
+    @NotNull
+    private Integer version;
 }

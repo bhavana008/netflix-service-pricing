@@ -5,6 +5,7 @@ import com.codahale.metrics.annotation.Timed;
 import com.google.inject.Inject;
 import com.netflix.assignment.PathConstants;
 import com.netflix.assignment.exception.DataException;
+import com.netflix.assignment.exception.PriceNotFoundException;
 import com.netflix.assignment.model.Customer;
 import com.netflix.assignment.model.ServicePlan;
 import com.netflix.assignment.service.CustomerManagementService;
@@ -59,6 +60,8 @@ public class CustomerManager {
         try {
             customerManagementService.modifyCustomerPlanByID(id, newPlan);
         } catch (DataException e) {
+            return Response.serverError().build();
+        } catch (PriceNotFoundException e) {
             return Response.serverError().build();
         }
         return Response.ok().build();

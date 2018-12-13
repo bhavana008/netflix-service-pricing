@@ -21,8 +21,9 @@ public interface PriceDao {
 
     void delete(Price price);
 
-    void update(Price price);
+    int updateWithNewEntry(Price price, Double newPrice);
 
-    // TODO: Modify it for better or in above query form
-    Price getByCountryPlan(String country, ServicePlan plan) throws PriceNotFoundException;
+    Price getByCountryPlanLatest(String country, ServicePlan plan) throws PriceNotFoundException;
+
+    Price getByCountryPlanVersion(String country, ServicePlan plan, int version) throws PriceNotFoundException;
 }

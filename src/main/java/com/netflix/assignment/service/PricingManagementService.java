@@ -6,6 +6,7 @@ import com.netflix.assignment.exception.DataException;
 import com.netflix.assignment.exception.PriceNotFoundException;
 import com.netflix.assignment.model.Price;
 import com.netflix.assignment.model.ServicePlan;
+import org.apache.commons.lang3.SerializationUtils;
 import org.hibernate.HibernateException;
 
 import javax.transaction.Transactional;
@@ -22,6 +23,7 @@ public class PricingManagementService {
     public PricingManagementService(PriceDao priceDao) {
         this.priceDao = priceDao;
     }
+
     public Price getPriceById(int id) {
         return priceDao.findById(id);
     }
@@ -31,9 +33,11 @@ public class PricingManagementService {
     }
 
     @Transactional
-    public void modifyPrice(Price price) throws DataException {
+    public void modifyPrice(Price price) throws DataException, PriceNotFoundException {
         try {
-            priceDao.update(price);
+            Price currentLatestPrice = priceDao.getByCountryPlanLatest(price.getCountry(), price.getPlan());
+            price.setVersion(currentLatestPrice.getVersion() + 1);
+            priceDao.create(price);
         } catch (HibernateException e) {
             throw new DataException("Error updating price event : " + price, e);
         }
@@ -42,9 +46,8 @@ public class PricingManagementService {
     @Transactional
     public void modifyPriceCountryService(String country, ServicePlan plan, Double newPrice) throws PriceNotFoundException, DataException {
         try {
-            Price price = priceDao.getByCountryPlan(country, plan);
-            price.setPrice(newPrice);
-            priceDao.update(price);
+            Price price = priceDao.getByCountryPlanLatest(country, plan);
+            priceDao.updateWithNewEntry(price, newPrice);
         } catch (HibernateException e) {
             throw new DataException("Error updating price event for : " + country + " " + plan, e);
         }
@@ -53,6 +56,7 @@ public class PricingManagementService {
     @Transactional
     public void insertPrice(Price price) throws DataException {
         try {
+            price.setVersion(1);
             priceDao.create(price);
         } catch (HibernateException e) {
             throw new DataException("Error inserting price event : " + price, e);

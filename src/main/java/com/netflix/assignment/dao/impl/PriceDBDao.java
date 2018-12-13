@@ -34,21 +34,43 @@ public class PriceDBDao extends AbstractDAO<Price> implements PriceDao {
         return persist(price).getId();
     }
 
+    public int updateWithNewEntry(Price price, Double newPrice) throws HibernateException {
+        currentSession().evict(price);
+        price.setPrice(newPrice);
+        price.setVersion(price.getVersion() + 1);
+        return ((Integer) currentSession().save(price));
+    }
+
     public void delete(Price price) throws HibernateException {
         currentSession().delete(price);
     }
 
-    public void update(Price price) throws HibernateException {
-        currentSession().update(price);
-    }
-
-    // TODO: Modify it for better or in above query form
-    public Price getByCountryPlan(String country, ServicePlan plan) throws PriceNotFoundException {
+    public Price getByCountryPlanLatest(String country, ServicePlan plan) throws PriceNotFoundException {
         List<Price> prices;
         try {
             prices = (List<Price>) currentSession().createQuery("from Price where country= '" + country
                     + "' and plan= '"
-                    + plan.toString() + "'").list();
+                    + plan.toString()
+                    + "' ORDER BY version DESC").list();
+
+            if(CollectionUtils.isNotEmpty(prices)) {
+                return prices.get(0);
+            }
+
+        } catch (HibernateException e) {
+            throw new PriceNotFoundException("Error fetching price for country");
+        }
+
+        return null;
+    }
+
+    public Price getByCountryPlanVersion(String country, ServicePlan plan, int version) throws PriceNotFoundException {
+        List<Price> prices;
+        try {
+            prices = (List<Price>) currentSession().createQuery("from Price where country= '" + country
+                    + "' and plan= '"
+                    + plan.toString()
+                    + "' and version = '" + version + "'").list();
 
             if(CollectionUtils.isNotEmpty(prices)) {
                 return prices.get(0);
