@@ -59,9 +59,7 @@ public class CustomerManager {
     public Response modifyCustomerPlanById(@QueryParam("id") int id, @QueryParam("plan") ServicePlan newPlan) {
         try {
             customerManagementService.modifyCustomerPlanByID(id, newPlan);
-        } catch (DataException e) {
-            return Response.serverError().build();
-        } catch (PriceNotFoundException e) {
+        } catch (DataException | PriceNotFoundException e) {
             return Response.serverError().build();
         }
         return Response.ok().build();
@@ -116,6 +114,15 @@ public class CustomerManager {
     @UnitOfWork
     public Response getCustomerPrice(@QueryParam("id") int id) {
         String price = customerManagementService.getPriceForId(id);
+        return Response.ok(price).build();
+    }
+
+    @GET
+    @Timed
+    @Path(PathConstants.FETCH_PRICE_CHANGE)
+    @UnitOfWork
+    public Response getCustomerPriceChange(@QueryParam("id") int id) {
+        String price = customerManagementService.getNewPriceForId(id);
         return Response.ok(price).build();
     }
 }

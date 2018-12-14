@@ -91,13 +91,37 @@ public class CustomerManagementService {
 
     @Transactional
     public String getPriceForId(int id) {
-        log.debug("Getting price for customer with Id : {}", id);
+        log.info("Getting price for customer with Id : {}", id);
 
         Customer customer = customerDao.findById(id);
 
         try {
             Price price = priceDao.getByCountryPlanVersion(customer.getCountry(), customer.getPlan(), customer.getVersion());
             return price.getPrice() + Constants.SPACE + price.getCurrency();
+        } catch (PriceNotFoundException e) {
+            return PriceDao.PRICE_NOT_FOUND;
+        }
+    }
+
+    @Transactional
+    public String getNewPriceForId(int id) {
+        log.debug("Getting price for customer with Id : {}", id);
+
+        Customer customer = customerDao.findById(id);
+
+        try {
+            Price price = priceDao.getByCountryPlanVersion(customer.getCountry(), customer.getPlan(), customer.getVersion());
+            Price newPrice = priceDao.getByCountryPlanLatest(customer.getCountry(), customer.getPlan());
+
+            if (price.getPrice().equals(newPrice.getPrice()) && price.getCurrency().equals(newPrice.getCurrency())) {
+                return price.getPrice() + Constants.SPACE + price.getCurrency();
+            }
+
+            return "PRICE FOR SELECTED PLAN HAS CHANGED FROM "
+                    + price.getPrice() + Constants.SPACE + price.getCurrency()
+                    + " TO "
+                    + newPrice.getPrice() + Constants.SPACE + newPrice.getCurrency();
+
         } catch (PriceNotFoundException e) {
             return PriceDao.PRICE_NOT_FOUND;
         }

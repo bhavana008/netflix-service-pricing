@@ -13,7 +13,8 @@ public class PathConstants {
     public static final String MODIFY = PATH_DELIMITER + "modify";
     public static final String DELETE = PATH_DELIMITER + "delete";
     public static final String FETCH = PATH_DELIMITER + "fetch";
-    public static final String FETCH_PRICE = PATH_DELIMITER + "fetch_price";
+    public static final String FETCH_PRICE = PATH_DELIMITER + "fetchPrice";
+    public static final String FETCH_PRICE_CHANGE = PATH_DELIMITER + "fetchPriceChange";
     public static final String GET_BY_ID = PATH_DELIMITER + "getId";
     public static final String GET_ALL = PATH_DELIMITER + "getAll";
     public static final String MODIFY_FOR_COUNTRY_PLAN = PATH_DELIMITER + "modifyForCountryPlan";
